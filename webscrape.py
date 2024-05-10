@@ -16,9 +16,12 @@ def get_package_url(package_name):
         if response.status_code == 200:
             soup = BeautifulSoup(response.content, 'html.parser')
             search_results = soup.find('div', class_='egMi0 kCrYT')
-            url = search_results.find('a')['href'].split('?q=')[1].split('&')[0]
-            print("Package URL:", url)
-            return url
+            if search_results:
+               url = search_results.find('a')['href'].split('?q=')[1].split('&')[0]
+               print("Package URL:", url)
+               return url
+            else:
+               print("Search results not found")
     except requests.exceptions.RequestException as e:
         print(f"Error searching for package URL: {e}")
 
@@ -48,7 +51,11 @@ def get_latest_version(package_name):
     print(f"HTTP Status Code: {response.status_code}")
 
     soup = BeautifulSoup(response.content, 'html.parser')
+    
     latest_version_element = soup.find('a', class_='vbtn release')
+    if not latest_version_element:
+        latest_version_element = soup.find('a', class_='vbtn alpha')
+        
     if latest_version_element:
         latest_version = latest_version_element.text.strip()
         return latest_version, url
